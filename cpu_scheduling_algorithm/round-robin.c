@@ -1,89 +1,80 @@
 #include <stdio.h>
 
-// Global declaration
-int quantum_time;
-
-int waiting_time[100];
-int turnaround_time[100];
-int completion_time[100];
-
-int total_waiting_time = 0;
-int total_turnaround_time = 0;
-
-// Declare the process structure
+// Structure to store process details
 struct Process
 {
     int id;
-    int arrival_time;
     int burst_time;
-    int remaining_burst;
+    int arrival_time;
+    int remaining_time;
 };
 
-// Function to carry out the scheduling using Round Robin algorithm
-void roundRobin(struct Process process[], int n)
-{
-    int time = 0;
-    int remaining_processes = n;
+// Function to schedule the processes using round robin algorithm
 
-    // Loop until all processes are completed
+void roundRobin(struct Process processes[], int N, int quantum_time)
+{
+    int waiting_time[N];
+    int turnaround_time[N];
+    int total_waiting_time = 0;
+    int total_turnaround_time = 0;
+
+    printf("\n Process No \t\t Burst Time \t\t Turnaround Time \t\t Waiting Time ");
+
+    int remaining_processes = N;
+    int current_time = 0;
+
     while (remaining_processes > 0)
     {
-        // Iterate through each process
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < N; i++)
         {
-            // Check if the process still has remaining burst time
-            if (process[i].remaining_burst > 0)
+            if (processes[i].remaining_time > 0)
             {
-                // Execute the process for the time quantum or until completion
-                if (process[i].remaining_burst <= quantum_time)
+                int execute_time = (processes[i].remaining_time <= quantum_time) ? processes[i].remaining_time : quantum_time;
+                processes[i].remaining_time -= execute_time;
+                current_time += execute_time;
+
+                if (processes[i].remaining_time == 0)
                 {
-                    time += process[i].remaining_burst;
-                    process[i].remaining_burst = 0;
-                    completion_time[i] = time;
-                    turnaround_time[i] = completion_time[i] - process[i].arrival_time;
-                    waiting_time[i] = turnaround_time[i] - process[i].burst_time;
+                    remaining_processes--;
+
+                    turnaround_time[i] = current_time - processes[i].arrival_time;
+                    waiting_time[i] = turnaround_time[i] - processes[i].burst_time;
+
+                    printf("\nProcess No[%d] \t\t %d \t\t\t\t %d \t\t\t\t %d", processes[i].id, processes[i].burst_time, turnaround_time[i], waiting_time[i]);
+
                     total_waiting_time += waiting_time[i];
                     total_turnaround_time += turnaround_time[i];
-                    remaining_processes--;
-                }
-                else
-                {
-                    time += quantum_time;
-                    process[i].remaining_burst -= quantum_time;
                 }
             }
         }
     }
 
-    // Printing the results
-    printf("Process\t Arrival Time\t Completion Time\t Burst Time\t Waiting Time\t Turnaround Time\n");
-    for (int i = 0; i < n; i++)
-        printf("%d\t %d\t\t %d \t\t\t %d\t\t %d\t\t %d\n", process[i].id, process[i].arrival_time, completion_time[i], process[i].burst_time, waiting_time[i], turnaround_time[i]);
-
-    printf("\nAverage Waiting Time: %.2f\n", (float)total_waiting_time / n);
-    printf("Average Turnaround Time: %.2f\n", (float)total_turnaround_time / n);
+    printf("\n\nAverage Turnaround Time: %.2f", (float)total_turnaround_time / N);
+    printf("\nAverage Waiting Time: %.2f\n", (float)total_waiting_time / N);
 }
 
-// Driver code
 int main()
 {
-    int n;
-    printf("Enter the number of Processes: ");
-    scanf("%d", &n);
+    int N;
+    printf("Total number of processes in the system: ");
+    scanf("%d", &N);
 
-    struct Process process[n];
-    printf("Enter arrival time and burst time for each process:\n");
-    for (int i = 0; i < n; i++)
+    struct Process processes[N];
+
+    printf("\nEnter the Arrival and Burst time of each Process :\n");
+
+    for (int i = 0; i < N; i++)
     {
-        process[i].id = i + 1; // Assign process IDs automatically
-        printf("Process %d: ", i + 1);
-        scanf("%d %d", &process[i].arrival_time, &process[i].burst_time);
-        process[i].remaining_burst = process[i].burst_time;
+        printf("Process %d : ", i + 1);
+        scanf("%d %d", &processes[i].arrival_time, &processes[i].burst_time);
+        processes[i].remaining_time = processes[i].burst_time;
+        processes[i].id = i + 1;
     }
 
-    printf("\nEnter the Time Quantum: ");
+    int quantum_time;
+    printf("\nEnter the Time Quantum for the process: ");
     scanf("%d", &quantum_time);
 
-    roundRobin(process, n);
+    roundRobin(processes, N, quantum_time);
     return 0;
 }
