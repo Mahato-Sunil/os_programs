@@ -40,7 +40,7 @@ void roundRobin(struct Process processes[], int N, int quantum_time)
                     turnaround_time[i] = current_time - processes[i].arrival_time;
                     waiting_time[i] = turnaround_time[i] - processes[i].burst_time;
 
-                    printf("\nProcess No[%d] \t\t %d \t\t\t\t %d \t\t\t\t %d", processes[i].id, processes[i].burst_time, turnaround_time[i], waiting_time[i]);
+                    printf("\n %d \t\t %d \t\t\t\t %d \t\t\t\t %d", processes[i].id, processes[i].burst_time, turnaround_time[i], waiting_time[i]);
 
                     total_waiting_time += waiting_time[i];
                     total_turnaround_time += turnaround_time[i];
@@ -56,7 +56,7 @@ void roundRobin(struct Process processes[], int N, int quantum_time)
 int main()
 {
     int N;
-    printf("Total number of processes in the system: ");
+    printf("Enter number of processes : ");
     scanf("%d", &N);
 
     struct Process processes[N];
